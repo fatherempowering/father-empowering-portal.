@@ -2439,6 +2439,13 @@ function renderWeekZeroStatus(){
   }
   renderWeekZeroProgress();
 }
+function updateWeekZeroHeroVisibility(tab){
+  const globalHero=el('wz-global-hero');
+  if(!globalHero)return;
+  D.weekZero=normalizeWeekZero(D.weekZero);
+  const shouldShow=!!D.weekZero.onboardingComplete&&!D.weekZero.submitted&&tab==='directives';
+  globalHero.style.display=shouldShow?'block':'none';
+}
 function renderWeekZero(){
   buildWeekZeroLoadCards();
   restoreWeekZeroForm();
@@ -2449,8 +2456,9 @@ function renderWeekZero(){
   const complete=!!(D.weekZero&&D.weekZero.onboardingComplete)&&!forceWeekZeroIntro;
   if(onboarding)onboarding.style.display=complete?'none':'block';
   if(active)active.style.display=complete?'block':'none';
-  const globalHero=el('wz-global-hero');
-  if(globalHero)globalHero.style.display=(complete&&!D.weekZero.submitted)?'block':'none';
+  const activePanel=document.querySelector('.wz-panel.active');
+  const activeTab=activePanel?String(activePanel.id||'').replace('wz-panel-',''):'directives';
+  updateWeekZeroHeroVisibility(activeTab);
   renderWeekZeroStatus();
   renderWeekZeroStepNav();
   renderWeekZeroSummary();
@@ -2469,6 +2477,7 @@ function showWeekZeroTab(tab,btn){
   document.querySelectorAll('.wz-panel').forEach(p=>p.classList.remove('active'));
   const panel=el('wz-panel-'+tab);
   if(panel)panel.classList.add('active');
+  updateWeekZeroHeroVisibility(tab);
   document.querySelectorAll('.wz-tab').forEach(b=>b.classList.remove('active'));
   const target=btn||document.querySelector('[data-wz-tab="'+tab+'"]');
   if(target)target.classList.add('active');
@@ -2485,6 +2494,7 @@ function showWeekZeroTab(tab,btn){
     });
   }
   if(tab==='review')renderWeekZeroSummary();
+  scrollWeekZeroToTop('smooth');
 }
 function openWeekZeroReview(){
   saveWeekZeroData();
@@ -2908,13 +2918,6 @@ function selectNutritionDayForToday(){
 function getMainNavButton(name){
   return document.querySelector('[data-panel-nav="'+name+'"]');
 }
-function centerMainNavButton(btn){
-  if(!btn)return;
-  const nav=btn.closest('.nav');
-  if(!nav||nav.scrollWidth<=nav.clientWidth)return;
-  const left=btn.offsetLeft-(nav.clientWidth-btn.offsetWidth)/2;
-  nav.scrollTo({left:Math.max(0,left),behavior:'smooth'});
-}
 function getPanelNavButton(name,btn){
   if(btn)return btn;
   if(name==='weekzero')return getMainNavButton('training');
@@ -2940,10 +2943,7 @@ function showPanel(name,btn,opts){
   panel.classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   const activeBtn=getPanelNavButton(name,btn);
-  if(activeBtn){
-    activeBtn.classList.add('active');
-    requestAnimationFrame(()=>centerMainNavButton(activeBtn));
-  }
+  if(activeBtn)activeBtn.classList.add('active');
   window.scrollTo({top:0});
   if(name==='entrainement'&&!(opts&&opts.keepSelectedWeek)){selectTrainingDayForToday();}
   if(name==='nutrition'&&!(opts&&opts.keepSelectedDay)){selectNutritionDayForToday();}

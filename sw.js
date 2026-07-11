@@ -1,4 +1,4 @@
-const CACHE_NAME = 'legacy-protocol-v3.1-main-nav-centering';
+const CACHE_NAME = 'legacy-protocol-v3.2-week-zero-hero-scroll';
 const APP_SHELL=[
   './',
   './index.html',
