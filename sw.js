@@ -1,4 +1,4 @@
-const CACHE_NAME = 'legacy-protocol-v3.2.2-week-zero-scroll-target-fix';
+const CACHE_NAME = 'legacy-protocol-v3.2.3-week-zero-absolute-top-fix';
 const APP_SHELL=[
   './',
   './index.html',
